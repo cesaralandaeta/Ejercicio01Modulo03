@@ -115,15 +115,11 @@ namespace EjercicioClase1Modulo3.Controllers
         [Route("pagina")]
         public ActionResult<List<Book>> GetLibros([FromQuery] int pagina = 1, [FromQuery] int cantidad = 10)
         {
-            //if (pagina < 1 || cantidad < 1)
-            //{
-            //    return BadRequest(new { mensaje = "Los parámetros 'pagina' y 'cantidad' deben ser mayores que 0" });
-            //}
-
             var librosPaginados = Books.Skip((pagina - 1) * cantidad).Take(cantidad).ToList();
 
             return Ok(librosPaginados);
         }
         #endregion
     }
+
 }
