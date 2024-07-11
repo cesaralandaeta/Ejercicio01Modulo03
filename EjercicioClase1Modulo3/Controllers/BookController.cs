@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using System.Text.Json;
 
 namespace EjercicioClase1Modulo3.Controllers
 {
-    [Route( "" )]
+    
     [ApiController]
+    [Route("v1/libros")]
     public class BookController : ControllerBase
     {
         //Books contiene una lista de libros. Esta información viene del archivo libros.json ubicado dentro de la carpeta Data.
@@ -26,10 +28,10 @@ namespace EjercicioClase1Modulo3.Controllers
         */
 
         [HttpGet]
-        [Route( "" )]
+        //[Route( "v1/libros" )]
         public ActionResult<List<Book>> GetBooks()
         {
-            return Ok();
+            return Ok(Books.FirstOrDefault());
         }
 
         #endregion
@@ -41,7 +43,14 @@ namespace EjercicioClase1Modulo3.Controllers
         Ejemplo: v1/libros/8 (devuelve toda la información del libro cuyo id es 8. Es decir: El diario de Ana Frank)
         */
 
+        [HttpGet]
+        [Route("{IdLibro}")]
+        public ActionResult<List<Book>> GetBookId([FromRoute] int idLibro)
+        {
+            var book = Books.FirstOrDefault(b => b.id == idLibro);
+            return Ok(book);
 
+        }
         #endregion
 
         #region Ejercicio 3
@@ -50,7 +59,14 @@ namespace EjercicioClase1Modulo3.Controllers
         [GET] v1/libros/genero/{genero} 
         Ejemplo: v1/libros/genero/fantasía (devuelve una lista de todos los libros del género fantasía)
          */
+        [HttpGet]
+        [Route("genero/{genero}")]
+        public ActionResult<List<Book>> GetBookPorGenero([FromRoute] string genero)
+        {
+            var bookPorGenero = Books.FirstOrDefault(g => g.genero == genero);
 
+            return Ok(bookPorGenero);
+        }
 
         #endregion
 
@@ -60,6 +76,14 @@ namespace EjercicioClase1Modulo3.Controllers
         [GET] v1/libros?autor={autor}
         Ejemplo: v1/libros?autor=Paulo Coelho (devuelve una lista de todos los libros del autor Paulo Coelho)
          */
+        [HttpGet]
+        [Route("autor")]
+        public ActionResult<List<Book>> GetBookPorAutor([FromQuery] string autor)
+        {
+            var bookBuscarPorAutor = Books.FirstOrDefault(a => a.autor == autor);
+
+            return Ok(bookBuscarPorAutor);  
+        }
 
         #endregion
 
@@ -69,7 +93,13 @@ namespace EjercicioClase1Modulo3.Controllers
         [GET] v1/libros/generos
         Idealmente, el listado de géneros que retorne el endpoint, no debe contener repetidos.
          */
-
+        [HttpGet]
+        [Route("generos")]
+        public ActionResult<List<Book>> GetListadoGenero()
+        {
+            var generos = Books.Select(l => l.genero).Distinct().ToList();
+            return Ok(generos);   
+        }
         #endregion
 
         #region Ejercicio 6
@@ -81,6 +111,19 @@ namespace EjercicioClase1Modulo3.Controllers
         v1/libros?pagina=2&cantidad=10 (devuelve una lista de diez libros, salteando los primeros 10)
         v1/libros?pagina=3&cantidad=10 (devuelve una lista de diez libros, salteando los primeros 20)
          */
+        [HttpGet]
+        [Route("pagina")]
+        public ActionResult<List<Book>> GetLibros([FromQuery] int pagina = 1, [FromQuery] int cantidad = 10)
+        {
+            //if (pagina < 1 || cantidad < 1)
+            //{
+            //    return BadRequest(new { mensaje = "Los parámetros 'pagina' y 'cantidad' deben ser mayores que 0" });
+            //}
+
+            var librosPaginados = Books.Skip((pagina - 1) * cantidad).Take(cantidad).ToList();
+
+            return Ok(librosPaginados);
+        }
         #endregion
     }
 }
